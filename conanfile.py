@@ -41,11 +41,6 @@ class OpenBLASConan(ConanFile):
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
         #Rename to "sources" is a convention to simplify later steps
 
-    def build_requirements(self):
-        if self.settings.compiler == "gcc" and self.settings.os == "Windows":
-            self.build_requires("mingw_installer/1.0@conan/stable")
-            self.build_requires("msys_installer/1.0@danimtb/testing")
-
     def build(self):
         if self.options.cmake or self.settings.compiler == "Visual Studio":
             cmake = CMake(self)
