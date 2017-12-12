@@ -12,7 +12,7 @@ class OpenBLASConan(ConanFile):
     url = "https://github.com/xianyi/OpenBLAS"
     homepage = "http://www.openblas.net/"
     description = "OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version."
-    license = "https://github.com/xianyi/OpenBLAS/blob/master/LICENSE"
+    license = "BSD 3-Clause"
     exports_sources = ["CMakeLists.txt", "LICENSE"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False],
