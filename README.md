@@ -2,13 +2,13 @@
 
 ![conan-openblas image](/images/conan-openblas.png)
 
-[![Download](https://api.bintray.com/packages/danimtb/public-conan/eigen%3Adanimtb/images/download.svg)](https://bintray.com/danimtb/public-conan/eigen%3Adanimtb/_latestVersion)
+[![Download](https://api.bintray.com/packages/danimtb/public-conan/OpenBLAS%3Adanimtb/images/download.svg)](https://bintray.com/danimtb/public-conan/OpenBLAS%3Adanimtb/_latestVersion)
 [![Build Status](https://travis-ci.org/danimtb/conan-openblas.svg?branch=testing%2F0.2.20)](https://travis-ci.org/danimtb/conan-openblas)
 [![Build status](https://ci.appveyor.com/api/projects/status/jyeh443gn0l0f3bi?svg=true)](https://ci.appveyor.com/project/danimtb/conan-openblas)
 
-[Conan.io](https://conan.io) package for [OpenBLAS](https://bitbucket.org/eigen/eigen) project
+[Conan.io](https://conan.io) package for [OpenBLAS](https://github.com/xianyi/OpenBLAS) project
 
-The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/danimtb/public-conan/eigen%3Adanimtb).
+The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/danimtb/public-conan/OpenBLAS%3Adanimtb).
 
 ## For Users: Use this package
 
