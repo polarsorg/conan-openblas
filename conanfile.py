@@ -6,8 +6,8 @@ from glob import glob
 import os
 
 
-class OpenBLASConan(ConanFile):
-    name = "OpenBLAS"
+class openblasConan(ConanFile):
+    name = "openblas"
     version = "0.2.20"
     url = "https://github.com/xianyi/OpenBLAS"
     homepage = "http://www.openblas.net/"
@@ -33,7 +33,7 @@ class OpenBLASConan(ConanFile):
 
     def source(self):
         source_url = "https://sourceforge.net/projects/openblas"
-        file_name = ("{0} {1} version".format(self.name, self.version))
+        file_name = ("{0} {1} version".format("OpenBLAS", self.version))
         tools.get("{0}/files/v{1}/{2}.tar.gz".format(source_url, self.version, file_name))
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
 
