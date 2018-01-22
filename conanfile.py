@@ -32,9 +32,16 @@ class openblasConan(ConanFile):
         return "1" if option else "0"
 
     def configure(self):
-        if self.settings.compiler != "Visual Studio" and self.options["shared"]:
-            raise Exception("Shared build only supported in Visual Studio: "
-                            "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+        make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
+        if not tools.which(make_program):
+            if self.options["shared"]:
+                if self.settings.compiler != "Visual Studio":
+                    raise Exception("Shared build only supported in Visual Studio: "
+                                    "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+            else:
+                if self.settings.compiler == "Visual Studio":
+                    raise Exception("Static build not supported in Visual Studio: "
+                                    "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
 
     def source(self):
         source_url = "https://sourceforge.net/projects/openblas"
