@@ -13,7 +13,7 @@ class TestPackageConan(ConanFile):
         cmake = CMake(self)
 
         if self.settings.os == "Linux" and not self.options["OpenBLAS"].shared:
-            cmake.definitions["CMAKE_STATIC_LINKER_FLAGS"] = "-lpthread"
+            cmake.definitions["CMAKE_EXE_LINKER_FLAGS"] = "-lpthread"
 
         cmake.configure()
         cmake.build()
