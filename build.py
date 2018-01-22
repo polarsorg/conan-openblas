@@ -53,5 +53,5 @@ if __name__ == "__main__":
         upload=upload_remote,
         remotes=upload_remote)
 
-    builder.add_common_builds()
+    builder.add_common_builds(shared_option_name="OpenBLAS:shared")
     builder.run()
