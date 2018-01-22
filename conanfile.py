@@ -57,7 +57,7 @@ class OpenBLASConan(ConanFile):
     def package(self):
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
-                ignore_case=True, keep_path=False)
+                      ignore_case=True, keep_path=False)
 
             if self.settings.compiler == "Visual Studio":
                 self.copy(pattern="*.h", dst="include", src=".")
