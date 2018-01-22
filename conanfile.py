@@ -31,6 +31,11 @@ class openblasConan(ConanFile):
     def get_make_option_value(self, option):
         return "1" if option else "0"
 
+    def configure(self):
+        if self.settings.compiler != "Visual Studio" and self.options["shared"]:
+            raise Exception("Shared build only supported in Visual Studio: "
+                            "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+
     def source(self):
         source_url = "https://sourceforge.net/projects/openblas"
         file_name = ("{0} {1} version".format("OpenBLAS", self.version))
