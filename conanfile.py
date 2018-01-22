@@ -63,12 +63,15 @@ class OpenBLASConan(ConanFile):
                 self.copy(pattern="*.h", dst="include", src=".")
             else:
                 self.copy(pattern="*.h", dst="include", src="sources")
-            self.copy(pattern="*.dll", dst="bin", src="lib", keep_path=False)
-            self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.dylib", dst="lib", src="lib", keep_path=False)
+
+            if self.options["shared"]:
+                self.copy(pattern="*.dll", dst="bin", src="lib", keep_path=False)
+                self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False)
+                self.copy(pattern="*.dylib", dst="lib", src="lib", keep_path=False)
+            else:
+                self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
+                self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)
+                self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
