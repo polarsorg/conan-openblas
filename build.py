@@ -59,6 +59,8 @@ if __name__ == "__main__":
     for settings, options, env_vars, build_requires, reference in builder.items:
         if options["openblas:shared"] and settings["compiler"] != "Visual Studio":
             pass
+        elif not options["openblas:shared"] and settings["compiler"] == "Visual Studio":
+            pass
         else:
             filtered_builds.append([settings, options, env_vars, build_requires])
 
