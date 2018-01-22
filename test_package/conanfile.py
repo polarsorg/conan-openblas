@@ -12,7 +12,11 @@ class TestPackageConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.configure()
-        cmake.build()
+
+        if self.settings.build_type.os == "Linux" and not self.options["OpenBLAS"].shared:
+            cmake.build(args=["-lpthread"])
+        else:
+            cmake.build()
 
     def imports(self):
         self.copy("*.dll", dst="bin", src="bin")
