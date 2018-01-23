@@ -87,4 +87,5 @@ class openblasConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
 
         if self.settings.os == "Linux" and not self.options["shared"]:
+            self.output.warn("EEE")
             self.cpp_info.libs.append("pthread")
