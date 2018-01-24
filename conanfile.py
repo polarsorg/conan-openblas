@@ -32,6 +32,7 @@ class openblasConan(ConanFile):
         return "1" if option else "0"
 
     def configure(self):
+        self.output.info("configure()")
         make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
         if not tools.which(make_program):
             if self.options["shared"]:
@@ -44,12 +45,14 @@ class openblasConan(ConanFile):
                                     "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
 
     def source(self):
+        self.output.info("source()")
         source_url = "https://sourceforge.net/projects/openblas"
         file_name = ("{0} {1} version".format("OpenBLAS", self.version))
         tools.get("{0}/files/v{1}/{2}.tar.gz".format(source_url, self.version, file_name))
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
 
     def build(self):
+        self.output.info("build()")
         make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
 
         if tools.which(make_program):
@@ -67,6 +70,7 @@ class openblasConan(ConanFile):
             cmake.build()
 
     def package(self):
+        self.output.info("package()")
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
                       ignore_case=True, keep_path=False)
@@ -84,7 +88,11 @@ class openblasConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
+        self.output.info("package_info()")
         self.cpp_info.libs = tools.collect_libs(self)
+
+        for lib in self.cpp_info.libs:
+            self.output.info("cpp_info.libs: %s" % lib)
 
         if self.settings.os == "Linux" and not self.options["shared"]:
             self.output.warn("EEE")
