@@ -2,26 +2,26 @@
 
 ![conan-openblas image](/images/conan-openblas.png)
 
-[![Download](https://api.bintray.com/packages/danimtb/public-conan/OpenBLAS%3Adanimtb/images/download.svg)](https://bintray.com/danimtb/public-conan/OpenBLAS%3Adanimtb/_latestVersion)
-[![Build Status](https://travis-ci.org/danimtb/conan-openblas.svg?branch=testing%2F0.2.20)](https://travis-ci.org/danimtb/conan-openblas)
-[![Build status](https://ci.appveyor.com/api/projects/status/jyeh443gn0l0f3bi?svg=true)](https://ci.appveyor.com/project/danimtb/conan-openblas)
+[![Download](null/packages/conan-community/conan/openblas%3Aconan/images/download.svg?version=0.2.20%3Astable)](https://bintray.com/conan-community/conan/openblas%3Aconan/0.2.20%3Astable/link)
+[![Build Status](https://travis-ci.org/danimtb/conan-openblas.svg?branch=stable%2F0.2.20)](https://travis-ci.org/danimtb/conan-openblas)
+[![Build status](https://ci.appveyor.com/api/projects/status/hj182uagiarwi8mb/branch/stable/0.2.20?svg=true)](https://ci.appveyor.com/project/danimtb/conan-openblas/branch/stable/0.2.20)
 
 [Conan.io](https://conan.io) package for [OpenBLAS](https://github.com/xianyi/OpenBLAS) project
 
-The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/danimtb/public-conan/OpenBLAS%3Adanimtb).
+The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/conan-community/conan/openblas%3Aconan).
 
 ## For Users: Use this package
 
 ### Basic setup
 
-    $ conan install OpenBLAS/0.2.20@danimtb/testing
+    $ conan install OpenBLAS/0.2.20@conan/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    OpenBLAS/0.2.20@danimtb/testing
+    OpenBLAS/0.2.20@conan/stable
 
     [generators]
     txt
@@ -41,15 +41,15 @@ The example below shows the commands used to publish to `danimtb` conan reposito
 
 The following command both runs all the steps of the conan file, and publishes the package to the local system cache.  This includes downloading dependencies from `build_requires` and `requires` , and then running the `build()` method.
 
-    $ conan create danimtb/testing
+    $ conan create conan/stable
 
 ## Add Remote
 
-    $ conan remote add danimtb "https://api.bintray.com/conan/danimtb/public-conan"
+    $ conan remote add conan-community "https://api.bintray.com/conan/conan-community/conan"
 
 ## Upload
 
-    $ conan upload OpenBLAS/0.2.20@danimtb/testing --all -r danimtb
+    $ conan upload OpenBLAS/0.2.20@conan/stable --all -r conan-community
 
 ## License
 
