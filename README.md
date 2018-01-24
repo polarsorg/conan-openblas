@@ -14,14 +14,14 @@ The packages generated with this **conanfile** can be found in [Bintray](https:/
 
 ### Basic setup
 
-    $ conan install OpenBLAS/0.2.20@conan/stable
+    $ conan install openblas/0.2.20@conan/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    OpenBLAS/0.2.20@conan/stable
+    openblas/0.2.20@conan/stable
 
     [generators]
     txt
@@ -49,7 +49,7 @@ The following command both runs all the steps of the conan file, and publishes t
 
 ## Upload
 
-    $ conan upload OpenBLAS/0.2.20@conan/stable --all -r conan-community
+    $ conan upload openblas/0.2.20@conan/stable --all -r conan-community
 
 ## License
 
