@@ -88,10 +88,10 @@ class openblasConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.output.info("package_info(): os=%s, shared=%s" % (self.settings.os, self.options["shared"]))
+        self.output.info("package_info(): os=%s, shared=%s" % (self.settings.os, str(self.options.shared)))
         self.cpp_info.libs = tools.collect_libs(self)
 
-        if self.settings.os == "Linux" and not self.options["shared"]:
+        if self.settings.os == "Linux" and not self.options.shared:
             self.output.warn("package_info(): Adding pthread to libs")
             self.cpp_info.libs.append("pthread")
 
