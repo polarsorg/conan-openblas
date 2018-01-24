@@ -32,7 +32,6 @@ class openblasConan(ConanFile):
         return "1" if option else "0"
 
     def configure(self):
-        self.output.info("configure()")
         make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
         if not tools.which(make_program):
             if self.options["shared"]:
@@ -52,7 +51,6 @@ class openblasConan(ConanFile):
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
 
     def build(self):
-        self.output.info("build()")
         make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
 
         if tools.which(make_program):
@@ -70,7 +68,6 @@ class openblasConan(ConanFile):
             cmake.build()
 
     def package(self):
-        self.output.info("package()")
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
                       ignore_case=True, keep_path=False)
@@ -88,12 +85,7 @@ class openblasConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.output.info("package_info(): os=%s, shared=%s" % (self.settings.os, str(self.options.shared)))
         self.cpp_info.libs = tools.collect_libs(self)
 
         if self.settings.os == "Linux" and not self.options.shared:
-            self.output.warn("package_info(): Adding pthread to libs")
             self.cpp_info.libs.append("pthread")
-
-        for lib in self.cpp_info.libs:
-            self.output.info("package_info(): cpp_info.libs: %s" % lib)
