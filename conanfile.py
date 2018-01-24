@@ -34,7 +34,7 @@ class openblasConan(ConanFile):
     def configure(self):
         make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
         if not tools.which(make_program):
-            if self.options["shared"]:
+            if self.options.shared:
                 if self.settings.compiler != "Visual Studio":
                     raise Exception("Shared build only supported in Visual Studio: "
                                     "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
