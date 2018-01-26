@@ -32,16 +32,9 @@ class openblasConan(ConanFile):
         return "1" if option else "0"
 
     def configure(self):
-        make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
-        if not tools.which(make_program):
-            if self.options.shared:
-                if self.settings.compiler != "Visual Studio":
-                    raise Exception("Shared build only supported in Visual Studio: "
-                                    "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
-            else:
-                if self.settings.compiler == "Visual Studio":
-                    raise Exception("Static build not supported in Visual Studio: "
-                                    "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+        if self.settings.compiler == "Visual Studio" and not self.options.shared:
+            raise Exception("Static build not supported in Visual Studio: "
+                            "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
 
     def source(self):
         self.output.info("source()")
@@ -51,9 +44,7 @@ class openblasConan(ConanFile):
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
 
     def build(self):
-        make_program = os.getenv("CONAN_MAKE_PROGRAM", "make")
-
-        if tools.which(make_program):
+        if self.settings.compiler != "Visual Studio":
             make_options = "DEBUG={0} NO_SHARED={1} BINARY={2} NO_LAPACKE={3} USE_MASS={4} USE_OPENMP={5}".format(
                 self.get_make_build_type_debug(),
                 self.get_make_option_value(self.options.shared),
@@ -61,7 +52,7 @@ class openblasConan(ConanFile):
                 self.get_make_option_value(self.options.no_lapacke),
                 self.get_make_option_value(self.options.use_mass),
                 self.get_make_option_value(self.options.use_openmp))
-            self.run("cd sources && make %s" % make_options)
+            self.run("cd sources && make %s" % make_options, cwd=self.source_folder)
         else:
             cmake = CMake(self)
             cmake.configure(source_dir="sources")
@@ -87,5 +78,5 @@ class openblasConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
 
-        if self.settings.os == "Linux" and not self.options.shared:
+        if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
