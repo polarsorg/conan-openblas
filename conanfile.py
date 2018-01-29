@@ -50,9 +50,9 @@ class openblasConan(ConanFile):
                 self.get_make_build_type_debug(),
                 self.get_make_option_value(not self.options.shared),
                 self.get_make_arch(),
-                self.get_make_option_value(self.options.no_lapacke),
-                self.get_make_option_value(self.options.use_mass),
-                self.get_make_option_value(self.options.use_openmp))
+                self.get_make_option_value(self.options.NO_LAPACKE),
+                self.get_make_option_value(self.options.USE_MASS),
+                self.get_make_option_value(self.options.USE_OPENMP))
             self.run("cd sources && make %s" % make_options, cwd=self.source_folder)
         else:
             self.output.warn("Building with CMake: Not using options")
