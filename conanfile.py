@@ -55,7 +55,7 @@ class openblasConan(ConanFile):
                 self.get_make_option_value(self.options.USE_OPENMP))
             self.run("cd sources && make %s" % make_options, cwd=self.source_folder)
         else:
-            self.output.warn("Building with CMake: Not using options")
+            self.output.warn("Building with CMake: Some options won't make any effect")
             cmake = CMake(self)
             cmake.definitions["USE_MASS"] = self.options.USE_MASS
             cmake.definitions["USE_OPENMP"] = self.options.USE_OPENMP
