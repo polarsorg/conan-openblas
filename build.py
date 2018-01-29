@@ -55,7 +55,7 @@ if __name__ == "__main__":
         upload=upload_remote,
         remotes=upload_remote)
 
-    builder.add_common_builds(shared_option_name="openblas:shared")
+    builder.add_common_builds(shared_option_name="openblas:shared", dll_with_static_runtime=True)
 
     filtered_builds = []
     for settings, options, env_vars, build_requires, reference in builder.items:
