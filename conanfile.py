@@ -64,21 +64,25 @@ class openblasConan(ConanFile):
             cmake.build()
 
     def package(self):
+
+        if self.settings.compiler != "Visual Studio":
+            make_options = "DEBUG={0} NO_SHARED={1} BINARY={2} NO_LAPACKE={3} USE_MASS={4} USE_OPENMP={5} PREFIX=\"{6}\"".format(
+                self.get_make_build_type_debug(),
+                self.get_make_option_value(not self.options.shared),
+                self.get_make_arch(),
+                self.get_make_option_value(self.options.NO_LAPACKE),
+                self.get_make_option_value(self.options.USE_MASS),
+                self.get_make_option_value(self.options.USE_OPENMP),
+                self.package_folder)
+            self.run('cd sources && make %s install' % make_options)
+        else:
+            cmake = CMake(self)
+            cmake.install()
+
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
                       ignore_case=True, keep_path=False)
 
-            if self.settings.compiler == "Visual Studio":
-                self.copy(pattern="*.h", dst="include", src=".")
-            else:
-                self.copy(pattern="*.h", dst="include", src="sources")
-
-            self.copy(pattern="*.dll", dst="bin", src="lib", keep_path=False)
-            self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.dylib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
