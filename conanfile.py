@@ -32,6 +32,10 @@ class openblasConan(ConanFile):
     def _get_make_option_value(option):
         return "1" if option else "0"
 
+    def build_requirements(self):
+        if self.settings.os == "Windows":
+            self.build_requires("strawberryperl/5.26.0@conan/stable")
+
     def configure(self):
         if self.settings.compiler == "Visual Studio":
             if not self.options.shared:
