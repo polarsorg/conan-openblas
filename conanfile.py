@@ -19,17 +19,17 @@ class openblasConan(ConanFile):
                "USE_MASS": [True, False],
                "USE_OPENMP": [True, False],
                "NO_LAPACKE": [True, False],
-               "NOFORTRAN": [True, False]
-              }
+               "NOFORTRAN": [True, False]}
     default_options = "shared=True", "USE_MASS=False", "USE_OPENMP=False", "NO_LAPACKE=False", "NOFORTRAN=True"
 
-    def get_make_arch(self):
+    def _get_make_arch(self):
         return "32" if self.settings.arch == "x86" else "64"
 
-    def get_make_build_type_debug(self):
+    def _get_make_build_type_debug(self):
         return "0" if self.settings.build_type == "Release" else "1"
 
-    def get_make_option_value(self, option):
+    @staticmethod
+    def _get_make_option_value(option):
         return "1" if option else "0"
 
     def configure(self):
@@ -47,14 +47,19 @@ class openblasConan(ConanFile):
 
     def build(self):
         if self.settings.compiler != "Visual Studio":
-            make_options = "DEBUG={0} NO_SHARED={1} BINARY={2} NO_LAPACKE={3} USE_MASS={4} USE_OPENMP={5} NOFORTRAN={6}".format(
-                self.get_make_build_type_debug(),
-                self.get_make_option_value(not self.options.shared),
-                self.get_make_arch(),
-                self.get_make_option_value(self.options.NO_LAPACKE),
-                self.get_make_option_value(self.options.USE_MASS),
-                self.get_make_option_value(self.options.USE_OPENMP),
-                self.get_make_option_value(self.options.NOFORTRAN))
+            make_options = "DEBUG={0} " \
+                           "NO_SHARED={1} " \
+                           "BINARY={2} " \
+                           "NO_LAPACKE={3} " \
+                           "USE_MASS={4} " \
+                           "USE_OPENMP={5} " \
+                           "NOFORTRAN={6}".format(self._get_make_build_type_debug(),
+                                                  self._get_make_option_value(not self.options.shared),
+                                                  self._get_make_arch(),
+                                                  self._get_make_option_value(self.options.NO_LAPACKE),
+                                                  self._get_make_option_value(self.options.USE_MASS),
+                                                  self._get_make_option_value(self.options.USE_OPENMP),
+                                                  self._get_make_option_value(self.options.NOFORTRAN))
             self.run("cd sources && make %s" % make_options, cwd=self.source_folder)
         else:
             self.output.warn("Building with CMake: Some options won't make any effect")
@@ -67,17 +72,22 @@ class openblasConan(ConanFile):
             cmake.build()
 
     def package(self):
-
         if self.settings.compiler != "Visual Studio":
-            make_options = "DEBUG={0} NO_SHARED={1} BINARY={2} NO_LAPACKE={3} USE_MASS={4} USE_OPENMP={5} NOFORTRAN={6} PREFIX=\"{7}\"".format(
-                self.get_make_build_type_debug(),
-                self.get_make_option_value(not self.options.shared),
-                self.get_make_arch(),
-                self.get_make_option_value(self.options.NO_LAPACKE),
-                self.get_make_option_value(self.options.USE_MASS),
-                self.get_make_option_value(self.options.USE_OPENMP),
-                self.get_make_option_value(self.options.NOFORTRAN),
-                self.package_folder)
+            make_options = "DEBUG={0} " \
+                           "NO_SHARED={1} " \
+                           "BINARY={2} " \
+                           "NO_LAPACKE={3} " \
+                           "USE_MASS={4} " \
+                           "USE_OPENMP={5} " \
+                           "NOFORTRAN={6} " \
+                           "PREFIX=\"{7}\"".format(self._get_make_build_type_debug(),
+                                                   self._get_make_option_value(not self.options.shared),
+                                                   self._get_make_arch(),
+                                                   self._get_make_option_value(self.options.NO_LAPACKE),
+                                                   self._get_make_option_value(self.options.USE_MASS),
+                                                   self._get_make_option_value(self.options.USE_OPENMP),
+                                                   self._get_make_option_value(self.options.NOFORTRAN),
+                                                   self.package_folder)
             self.run('cd sources && make %s install' % make_options)
         else:
             cmake = CMake(self)
@@ -86,7 +96,6 @@ class openblasConan(ConanFile):
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
                       ignore_case=True, keep_path=False)
-
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
