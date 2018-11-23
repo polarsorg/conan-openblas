@@ -75,7 +75,8 @@ class openblasConan(ConanFile):
                         "USE_MASS=%s" % self._get_make_option_value(self.options.USE_MASS),
                         "USE_OPENMP=%s" % self._get_make_option_value(self.options.USE_OPENMP),
                         "NOFORTRAN=%s" % self._get_make_option_value(self.options.NOFORTRAN)]
-        make_options.extend(args)
+        if args:
+            make_options.extend(args)
         self.run("cd sources && make %s" % ' '.join(make_options), cwd=self.source_folder)
 
     def build(self):
