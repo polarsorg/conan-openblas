@@ -58,7 +58,7 @@ class openblasConan(ConanFile):
         cmake = CMake(self)
         cmake.definitions["USE_MASS"] = self.options.USE_MASS
         cmake.definitions["USE_OPENMP"] = self.options.USE_OPENMP
-        cmake.definitions["BUILD_WITHOUT_LAPACK"] = self.options.NO_LAPACKE
+        cmake.definitions["NO_LAPACKE"] = self.options.NO_LAPACKE
         cmake.definitions["NOFORTRAN"] = self.options.NOFORTRAN
         cmake.configure(source_dir="sources")
         return cmake
@@ -87,7 +87,7 @@ class openblasConan(ConanFile):
 
     def package(self):
         if not self._is_msvc:
-            self._build_make(args=['install'])
+            self._build_make(args=['PREFIX=%s' % self.package_folder, 'install'])
         else:
             cmake = self._configure_cmake()
             cmake.install()
