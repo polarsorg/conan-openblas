@@ -42,6 +42,11 @@ class openblasConan(ConanFile):
                 raise Exception("Static build not supported in Visual Studio: "
                                 "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
 
+        if self.settings.os == "Windows":
+            if self.options.NOFORTRAN:
+                self.output.warn("NOFORTRAN option is disabled for Windows. Setting to false")
+                self.options.NOFORTRAN = False
+
     def source(self):
         self.output.info("source()")
         source_url = "https://sourceforge.net/projects/openblas"
