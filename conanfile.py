@@ -18,24 +18,34 @@ class openblasConan(ConanFile):
     options = {"shared": [True, False],
                "USE_MASS": [True, False],
                "USE_OPENMP": [True, False],
-               "NO_LAPACKE": [True, False]
-              }
-    default_options = "shared=True", "USE_MASS=False", "USE_OPENMP=False", "NO_LAPACKE=False"
+               "NO_LAPACKE": [True, False],
+               "NOFORTRAN": [True, False]}
+    default_options = "shared=True", "USE_MASS=False", "USE_OPENMP=False", "NO_LAPACKE=False", "NOFORTRAN=True"
 
-    def get_make_arch(self):
+    def _get_make_arch(self):
         return "32" if self.settings.arch == "x86" else "64"
 
-    def get_make_build_type_debug(self):
+    def _get_make_build_type_debug(self):
         return "0" if self.settings.build_type == "Release" else "1"
 
-    def get_make_option_value(self, option):
+    @staticmethod
+    def _get_make_option_value(option):
         return "1" if option else "0"
+
+    def build_requirements(self):
+        if self.settings.os == "Windows":
+            self.build_requires("strawberryperl/5.26.0@conan/stable")
 
     def configure(self):
         if self.settings.compiler == "Visual Studio":
             if not self.options.shared:
                 raise Exception("Static build not supported in Visual Studio: "
                                 "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+
+        if self.settings.os == "Windows":
+            if self.options.NOFORTRAN:
+                self.output.warn("NOFORTRAN option is disabled for Windows. Setting to false")
+                self.options.NOFORTRAN = False
 
     def source(self):
         self.output.info("source()")
@@ -44,44 +54,57 @@ class openblasConan(ConanFile):
         tools.get("{0}/files/v{1}/{2}.tar.gz".format(source_url, self.version, file_name))
         os.rename(glob("xianyi-OpenBLAS-*")[0], "sources")
 
+    @property
+    def _is_msvc(self):
+        return self.settings.compiler == "Visual Studio"
+
+    def _configure_cmake(self):
+        self.output.warn("Building with CMake: Some options won't make any effect")
+        cmake = CMake(self)
+        cmake.definitions["USE_MASS"] = self.options.USE_MASS
+        cmake.definitions["USE_OPENMP"] = self.options.USE_OPENMP
+        cmake.definitions["NO_LAPACKE"] = self.options.NO_LAPACKE
+        cmake.definitions["NOFORTRAN"] = self.options.NOFORTRAN
+        cmake.configure(source_dir="sources")
+        return cmake
+
+    def _build_cmake(self):
+        cmake = self._configure_cmake()
+        cmake.build()
+
+    def _build_make(self, args=None):
+        make_options = ["DEBUG=%s" % self._get_make_build_type_debug(),
+                        "NO_SHARED=%s" % self._get_make_option_value(not self.options.shared),
+                        "BINARY=%s" % self._get_make_arch(),
+                        "NO_LAPACKE=%s" % self._get_make_option_value(self.options.NO_LAPACKE),
+                        "USE_MASS=%s" % self._get_make_option_value(self.options.USE_MASS),
+                        "USE_OPENMP=%s" % self._get_make_option_value(self.options.USE_OPENMP),
+                        "NOFORTRAN=%s" % self._get_make_option_value(self.options.NOFORTRAN)]
+        if args:
+            make_options.extend(args)
+        self.run("cd sources && make %s" % ' '.join(make_options), cwd=self.source_folder)
+
     def build(self):
-        if self.settings.compiler != "Visual Studio":
-            make_options = "DEBUG={0} NO_SHARED={1} BINARY={2} NO_LAPACKE={3} USE_MASS={4} USE_OPENMP={5}".format(
-                self.get_make_build_type_debug(),
-                self.get_make_option_value(not self.options.shared),
-                self.get_make_arch(),
-                self.get_make_option_value(self.options.NO_LAPACKE),
-                self.get_make_option_value(self.options.USE_MASS),
-                self.get_make_option_value(self.options.USE_OPENMP))
-            self.run("cd sources && make %s" % make_options, cwd=self.source_folder)
+        if self._is_msvc:
+            self._build_cmake()
         else:
-            self.output.warn("Building with CMake: Some options won't make any effect")
-            cmake = CMake(self)
-            cmake.definitions["USE_MASS"] = self.options.USE_MASS
-            cmake.definitions["USE_OPENMP"] = self.options.USE_OPENMP
-            cmake.definitions["NO_LAPACKE"] = self.options.NO_LAPACKE
-            cmake.configure(source_dir="sources")
-            cmake.build()
+            self._build_make()
 
     def package(self):
+        if not self._is_msvc:
+            self._build_make(args=['PREFIX=%s' % self.package_folder, 'install'])
+        else:
+            cmake = self._configure_cmake()
+            cmake.install()
+
         with tools.chdir("sources"):
             self.copy(pattern="LICENSE", dst="licenses", src="sources",
                       ignore_case=True, keep_path=False)
-
-            if self.settings.compiler == "Visual Studio":
-                self.copy(pattern="*.h", dst="include", src=".")
-            else:
-                self.copy(pattern="*.h", dst="include", src="sources")
-
-            self.copy(pattern="*.dll", dst="bin", src="lib", keep_path=False)
-            self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.dylib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
+            if not self.options.NOFORTRAN:
+                self.cpp_info.libs.append("gfortran")
