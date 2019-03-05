@@ -80,6 +80,24 @@ class openblasConan(ConanFile):
                         "USE_MASS=%s" % self._get_make_option_value(self.options.USE_MASS),
                         "USE_OPENMP=%s" % self._get_make_option_value(self.options.USE_OPENMP),
                         "NOFORTRAN=%s" % self._get_make_option_value(self.options.NOFORTRAN)]
+        # https://github.com/xianyi/OpenBLAS/wiki/How-to-build-OpenBLAS-for-Android
+        target = {"armv6": "ARMV6",
+                  "armv7": "ARMV7",
+                  "armv7hf": "ARMV7",
+                  "armv8": "ARMV8",
+                  "sparc": "SPARC"}.get(str(self.settings.arch))
+        if tools.cross_building(self.settings):
+            if "CC_FOR_BUILD" in os.environ:
+                hostcc = os.environ["CC_FOR_BUILD"]
+            else:
+                hostcc = tools.which("cc") or tools.which("gcc") or tools.which("clang")
+            make_options.append("HOSTCC=%s" % hostcc)
+        if target:
+            make_options.append("TARGET=%s" % target)
+        if "CC" in os.environ:
+            make_options.append("CC=%s" % os.environ["CC"])
+        if "AR" in os.environ:
+            make_options.append("AR=%s" % os.environ["AR"])
         if args:
             make_options.extend(args)
         self.run("cd sources && make %s" % ' '.join(make_options), cwd=self.source_folder)
