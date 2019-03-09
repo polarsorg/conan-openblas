@@ -8,7 +8,7 @@ import os
 
 class openblasConan(ConanFile):
     name = "openblas"
-    version = "0.2.20"
+    version = "0.3.5"
     url = "https://github.com/xianyi/OpenBLAS"
     homepage = "http://www.openblas.net/"
     description = "OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version."
@@ -40,7 +40,7 @@ class openblasConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             if not self.options.shared:
                 raise Exception("Static build not supported in Visual Studio: "
-                                "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+                                "https://github.com/xianyi/OpenBLAS/blob/v0.3.5/CMakeLists.txt#L152")
 
         if self.settings.os == "Windows":
             if self.options.NOFORTRAN:
