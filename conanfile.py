@@ -121,6 +121,8 @@ class openblasConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+        if self._is_msvc:
+            self.cpp_info.includedirs.append(os.path.join("include", "openblas"))
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
