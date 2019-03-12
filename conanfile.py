@@ -8,7 +8,7 @@ import os
 
 class openblasConan(ConanFile):
     name = "openblas"
-    version = "0.2.20"
+    version = "0.3.5"
     url = "https://github.com/xianyi/OpenBLAS"
     homepage = "http://www.openblas.net/"
     description = "OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version."
@@ -40,7 +40,7 @@ class openblasConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             if not self.options.shared:
                 raise Exception("Static build not supported in Visual Studio: "
-                                "https://github.com/xianyi/OpenBLAS/blob/v0.2.20/CMakeLists.txt#L177")
+                                "https://github.com/xianyi/OpenBLAS/blob/v0.3.5/CMakeLists.txt#L152")
 
         if self.settings.os == "Windows":
             if self.options.NOFORTRAN:
@@ -80,6 +80,24 @@ class openblasConan(ConanFile):
                         "USE_MASS=%s" % self._get_make_option_value(self.options.USE_MASS),
                         "USE_OPENMP=%s" % self._get_make_option_value(self.options.USE_OPENMP),
                         "NOFORTRAN=%s" % self._get_make_option_value(self.options.NOFORTRAN)]
+        # https://github.com/xianyi/OpenBLAS/wiki/How-to-build-OpenBLAS-for-Android
+        target = {"armv6": "ARMV6",
+                  "armv7": "ARMV7",
+                  "armv7hf": "ARMV7",
+                  "armv8": "ARMV8",
+                  "sparc": "SPARC"}.get(str(self.settings.arch))
+        if tools.cross_building(self.settings):
+            if "CC_FOR_BUILD" in os.environ:
+                hostcc = os.environ["CC_FOR_BUILD"]
+            else:
+                hostcc = tools.which("cc") or tools.which("gcc") or tools.which("clang")
+            make_options.append("HOSTCC=%s" % hostcc)
+        if target:
+            make_options.append("TARGET=%s" % target)
+        if "CC" in os.environ:
+            make_options.append("CC=%s" % os.environ["CC"])
+        if "AR" in os.environ:
+            make_options.append("AR=%s" % os.environ["AR"])
         if args:
             make_options.extend(args)
         self.run("cd sources && make %s" % ' '.join(make_options), cwd=self.source_folder)
@@ -103,6 +121,8 @@ class openblasConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+        if self._is_msvc:
+            self.cpp_info.includedirs.append(os.path.join("include", "openblas"))
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
