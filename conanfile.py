@@ -120,6 +120,7 @@ class openblasConan(ConanFile):
                       ignore_case=True, keep_path=False)
 
     def package_info(self):
+        self.env_info.OpenBLAS_HOME = self.package_folder
         self.cpp_info.libs = tools.collect_libs(self)
         if self._is_msvc:
             self.cpp_info.includedirs.append(os.path.join("include", "openblas"))
