@@ -1,0 +1,133 @@
+version: 2.1
+jobs:
+  create:
+    working_directory: ~/circleci-openblas
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          CONAN_NON_INTERACTIVE: true
+    steps:
+      - checkout
+
+      - run:
+          name: Set permissions
+          command: |
+            sudo chown -R circleci:circleci /usr/local/bin
+            sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+
+      - restore_cache:
+          name: Restore pipenv cache
+          keys:
+            - pipenv-v1-{{ checksum "Pipfile.lock" }}
+            - pipenv-v1-
+
+      - run:
+          name: Install pipenv
+          command: sudo pip install pipenv
+
+      - run:
+          name: Install python dependencies
+          command: |
+            pipenv clean
+            pipenv install --dev
+
+      - save_cache:
+          name: Save pipenv cache
+          key: pipenv-v1-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+
+      - restore_cache:
+          name: Restore conan dependencies cache
+          keys:
+            - conan-v1-{{ checksum "conanfile.py" }}
+
+      - run:
+          name: Add remote
+          command: pipenv run conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
+
+      - run:
+          name: Native build
+          command: pipenv run conan create .
+      - run:
+          name: Cross-build android arm64-v8a abi
+          command: pipenv run conan create . --profile ./profiles/android-arm64-v8a --build missing
+
+      - save_cache:
+          name: Save conan dependencies cache
+          key: conan-v1-{{ checksum "conanfile.py" }}
+          paths:
+            - "~/.conan/data/android_ndk_installer"
+            - "~/.conan/data/openblas"
+            - "~/.conan/data/pkg-config_installer"
+
+  push-recipe:
+    working_directory: ~/circleci-openblas
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          CONAN_NON_INTERACTIVE: true
+    steps:
+      - checkout
+
+      - run:
+          name: Set permissions
+          command: |
+            sudo chown -R circleci:circleci /usr/local/bin
+            sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+
+      - restore_cache:
+          name: Restore pipenv cache
+          keys:
+            - pipenv-v1-{{ checksum "Pipfile.lock" }}
+            - pipenv-v1-
+
+      - run:
+          name: Install pipenv
+          command: sudo pip install pipenv
+
+      - run:
+          name: Install python dependencies
+          command: |
+            pipenv clean
+            pipenv install --dev
+
+      - save_cache:
+          name: Save pipenv cache
+          key: pipenv-v1-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+
+      # No need to do any compiling here as we have already run the create job.
+
+      - run:
+          name: Add remotes and login
+          command: |
+            pipenv run conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
+            pipenv run conan remote add polars-org-remote https://api.bintray.com/conan/polarsorg/Polars
+            pipenv run conan user -p $CONAN_API_KEY -r polars-org-remote $CONAN_LOGIN_USERNAME
+
+      - run:
+          name: Upload recipe
+          command: |
+            pipenv run conan export .
+            pipenv run conan upload -r polars-org-remote --confirm openblas/*
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - create
+      - push-recipe:
+          context: bintray-machine-user
+          requires:
+            - create
+          filters:
+            branches:
+              only: stable/0.3.5
