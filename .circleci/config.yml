@@ -47,7 +47,7 @@ jobs:
 
       - run:
           name: Add remote
-          command: pipenv run conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
+          command: pipenv run conan remote add conancenter https://center.conan.io
 
       - run:
           name: Native build
@@ -106,15 +106,15 @@ jobs:
       - run:
           name: Add remotes and login
           command: |
-            pipenv run conan remote add conan-community https://api.bintray.com/conan/conan-community/conan
-            pipenv run conan remote add polars-org-remote https://api.bintray.com/conan/polarsorg/Polars
-            pipenv run conan user -p $CONAN_API_KEY -r polars-org-remote $CONAN_LOGIN_USERNAME
+            pipenv run conan remote add conancenter https://center.conan.io
+            pipenv run conan remote add polars-conan-remote https://polars.jfrog.io/artifactory/api/conan/polars-conan
+            pipenv run conan user -p $CONAN_ARTIFACTORY_KEY -r polars-conan-remote $CONAN_LOGIN_USERNAME
 
       - run:
           name: Upload recipe
           command: |
             pipenv run conan export .
-            pipenv run conan upload -r polars-org-remote --confirm openblas/*
+            pipenv run conan upload -r polars-conan-remote --confirm openblas/*
 
 workflows:
   version: 2
@@ -122,7 +122,7 @@ workflows:
     jobs:
       - create
       - push-recipe:
-          context: bintray-machine-user
+          context: artifactory-user
           requires:
             - create
           filters:
